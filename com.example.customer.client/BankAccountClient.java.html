@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>BankAccountClient.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">customer</a> &gt; <a href="index.source.html" class="el_package">com.example.customer.client</a> &gt; <span class="el_source">BankAccountClient.java</span></div><h1>BankAccountClient.java</h1><pre class="source lang-java linenums">package com.example.customer.client;
+
+import com.example.customer.model.BankAccount;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.server.ResponseStatusException;
+import reactor.core.publisher.Mono;
+
+import java.util.List;
+
+/**
+ * Service class for interacting with the Bank Account microservice.
+ * Provides functionality to check if a customer has active bank accounts.
+ */
+@Service
+@RequiredArgsConstructor
+public class BankAccountClient {
+
+    private final WebClient webClient; // WebClient used to interact with the Bank Account microservice.
+
+    /**
+     * Checks if a customer has active bank accounts by calling the Bank Account microservice.
+     *
+     * @param customerId The ID of the customer.
+     * @return true if the customer has active bank accounts; false otherwise.
+     */
+    public boolean hasBankAccounts(Long customerId) {
+        try {
+            // Sends a GET request to the endpoint /api/accounts/customer/{customerId}
+<span class="nc" id="L31">            List&lt;?&gt; bankAccounts = webClient.get()</span>
+<span class="nc" id="L32">                    .uri(&quot;/customer/{customerId}&quot;, customerId) // Replace {customerId} with the actual customer ID</span>
+<span class="nc" id="L33">                    .retrieve()</span>
+<span class="nc" id="L34">                    .bodyToMono(List.class) // Expecting a response body containing a list of bank accounts</span>
+<span class="nc" id="L35">                    .block(); // Blocks the reactive flow and retrieves the result synchronously</span>
+
+            // Prints the content of bankAccounts for debugging purposes
+<span class="nc" id="L38">            System.out.println(&quot;Bank Accounts Response: &quot; + bankAccounts);</span>
+
+            // Checks if the list is not null or empty
+<span class="nc bnc" id="L41" title="All 4 branches missed.">            return bankAccounts != null &amp;&amp; !bankAccounts.isEmpty();</span>
+<span class="nc" id="L42">        } catch (Exception e) {</span>
+            // Logs the error and assumes the customer has no bank accounts in case of an exception
+<span class="nc" id="L44">            System.err.println(&quot;Error checking bank accounts: &quot; + e.getMessage());</span>
+<span class="nc" id="L45">            return false;</span>
+        }
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

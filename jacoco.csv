@@ -1,0 +1,16 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+customer,com.example.customer.controller,CustomerController,77,6,0,0,14,3,6,1,6,1
+customer,com.example.customer.client,BankAccountClient,38,0,4,0,10,0,3,0,1,0
+customer,com.example.customer.model,Customer,27,23,5,1,4,9,4,3,1,3
+customer,com.example.customer.model,AccountType,15,0,0,0,2,0,1,0,1,0
+customer,com.example.customer.mapper,CustomerMapper,29,0,0,0,4,0,3,0,3,0
+customer,com.example.customer.config,GlobalExceptionHandler,104,3,0,0,21,1,6,1,6,1
+customer,com.example.customer.config,WebClientConfig,0,9,0,0,0,4,0,2,0,2
+customer,com.example.customer.config,OpenApiConfig,0,27,0,0,0,10,0,2,0,2
+customer,com.example.customer.dto,CustomerRequest,3,0,0,0,1,0,1,0,1,0
+customer,com.example.customer.dto,CustomerResponse,18,0,0,0,7,0,1,0,1,0
+customer,com.example.customer.dto,ErrorResponse,9,0,0,0,4,0,1,0,1,0
+customer,com.example.customer,CustomerApplication,5,3,0,0,2,1,1,1,1,1
+customer,com.example.customer.service.impl,CustomerServiceImpl,5,121,2,6,1,27,2,11,0,9
+customer,com.example.customer.service.impl,AccountValidationServiceImpl,0,15,0,2,0,4,0,3,0,2
+customer,com.example.customer.service.impl,DniValidationServiceImpl,0,15,0,2,0,4,0,3,0,2

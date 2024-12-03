@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>CustomerServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">customer</a> &gt; <a href="index.source.html" class="el_package">com.example.customer.service.impl</a> &gt; <span class="el_source">CustomerServiceImpl.java</span></div><h1>CustomerServiceImpl.java</h1><pre class="source lang-java linenums">package com.example.customer.service.impl;
+
+import com.example.customer.model.Customer;
+import com.example.customer.repository.CustomerRepository;
+import com.example.customer.service.AccountValidationService;
+import com.example.customer.service.CustomerService;
+import com.example.customer.service.DniValidationService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.Optional;
+
+/**
+ * CustomerServiceImpl provides the implementation of the business logic for managing customers.
+ * It performs CRUD operations and ensures the uniqueness of the customer's DNI.
+ */
+@Service
+public class CustomerServiceImpl implements CustomerService {
+
+    private final CustomerRepository customerRepository; // Repository for accessing customer data
+    private final DniValidationService dniValidationService;
+    private final AccountValidationService accountValidationService;
+    /**
+     * Constructor to initialize CustomerServiceImpl with required dependencies.
+     *
+     * @param customerRepository Repository for managing customer data.
+     */
+    @Autowired
+<span class="fc" id="L30">    public CustomerServiceImpl(CustomerRepository customerRepository, DniValidationService dniValidationService, AccountValidationService accountValidationService) {</span>
+<span class="fc" id="L31">        this.customerRepository = customerRepository;</span>
+<span class="fc" id="L32">        this.dniValidationService = dniValidationService;</span>
+<span class="fc" id="L33">        this.accountValidationService = accountValidationService;</span>
+<span class="fc" id="L34">    }</span>
+
+    /**
+     * Creates a new customer.
+     *
+     * @param customer The customer to be created.
+     * @return The created customer.
+     * @throws IllegalArgumentException If a customer with the same DNI already exists.
+     */
+    @Override
+    public Customer createCustomer(Customer customer) {
+        // Check if a customer with the same DNI already exists
+<span class="fc bfc" id="L46" title="All 2 branches covered.">        if (!dniValidationService.isUnique(customer.getDni())) {</span>
+<span class="fc" id="L47">            throw new IllegalArgumentException(&quot;A customer with this DNI already exists.&quot;); // Ensure DNI uniqueness</span>
+        }
+<span class="fc" id="L49">        return customerRepository.save(customer); // Save and return the new customer</span>
+    }
+
+    /**
+     * Retrieves all customers from the database.
+     *
+     * @return A list of all customers.
+     */
+    @Override
+    public List&lt;Customer&gt; getAllCustomers() {
+<span class="fc" id="L59">        return customerRepository.findAll(); // Fetch and return all customers</span>
+    }
+
+    /**
+     * Retrieves a customer by their ID.
+     *
+     * @param id The ID of the customer to retrieve.
+     * @return An Optional containing the customer if found, or empty if not found.
+     */
+    @Override
+    public Optional&lt;Customer&gt; getCustomerById(Long id) {
+<span class="fc" id="L70">        return customerRepository.findById(id); // Fetch a customer by their ID</span>
+    }
+
+    /**
+     * Updates an existing customer.
+     *
+     * @param id       The ID of the customer to update.
+     * @param customer The updated customer details.
+     * @return The updated customer.
+     * @throws IllegalArgumentException If the customer is not found or if a different customer with the same DNI exists.
+     */
+    @Override
+    public Customer updateCustomer(Long id, Customer customer) {
+<span class="fc" id="L83">        return customerRepository.findById(id)</span>
+<span class="fc" id="L84">                .map(existingCustomer -&gt; {</span>
+                    // Check if a different customer with the same DNI exists
+<span class="pc bpc" id="L86" title="1 of 2 branches missed.">                    if (!existingCustomer.getDni().equals(customer.getDni()) &amp;&amp;</span>
+<span class="pc bpc" id="L87" title="1 of 2 branches missed.">                            !dniValidationService.isUnique(customer.getDni())) {</span>
+<span class="nc" id="L88">                        throw new IllegalArgumentException(&quot;A customer with this DNI already exists.&quot;); // Ensure DNI uniqueness</span>
+                    }
+                    // Update customer details
+<span class="fc" id="L91">                    existingCustomer.setFirstName(customer.getFirstName());</span>
+<span class="fc" id="L92">                    existingCustomer.setLastName(customer.getLastName());</span>
+<span class="fc" id="L93">                    existingCustomer.setDni(customer.getDni());</span>
+<span class="fc" id="L94">                    existingCustomer.setEmail(customer.getEmail());</span>
+<span class="fc" id="L95">                    return customerRepository.save(existingCustomer); // Save updated customer</span>
+                })
+<span class="fc" id="L97">                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;Customer not found with ID: &quot; + id)); // Handle customer not found</span>
+    }
+
+
+    /**
+     * Deletes a customer if they have no active bank accounts.
+     *
+     * @param id The ID of the customer to delete.
+     * @return true if the customer was deleted; false otherwise.
+     * @throws IllegalStateException If the customer has active bank accounts.
+     */
+    @Override
+    public boolean deleteCustomer(Long id) {
+<span class="fc bfc" id="L110" title="All 2 branches covered.">        if (!accountValidationService.canDeleteCustomer(id)) {</span>
+<span class="fc" id="L111">            throw new IllegalStateException(&quot;Customer has active bank accounts and cannot be deleted.&quot;); // Ensure no active bank accounts</span>
+        }
+<span class="fc" id="L113">        return customerRepository.findById(id)</span>
+<span class="fc" id="L114">                .map(customer -&gt; {</span>
+<span class="fc" id="L115">                    customerRepository.delete(customer); // Delete the customer</span>
+<span class="fc" id="L116">                    return true; // Return success</span>
+                })
+<span class="fc" id="L118">                .orElse(false); // Return false if the customer is not found</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>

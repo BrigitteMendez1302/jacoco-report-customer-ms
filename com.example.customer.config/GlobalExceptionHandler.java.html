@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="es"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GlobalExceptionHandler.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">customer</a> &gt; <a href="index.source.html" class="el_package">com.example.customer.config</a> &gt; <span class="el_source">GlobalExceptionHandler.java</span></div><h1>GlobalExceptionHandler.java</h1><pre class="source lang-java linenums">package com.example.customer.config;
+
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.NoSuchElementException;
+
+/**
+ * Global exception handler for managing application-specific exceptions.
+ * Provides consistent error responses for various types of exceptions.
+ */
+@ControllerAdvice
+<span class="fc" id="L20">public class GlobalExceptionHandler {</span>
+
+    /**
+     * Handles validation errors for method arguments.
+     *
+     * @param ex The MethodArgumentNotValidException thrown when validation fails.
+     * @return A ResponseEntity containing a map of field-specific error messages with HTTP status 400.
+     */
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; handleValidationExceptions(MethodArgumentNotValidException ex) {
+<span class="nc" id="L30">        Map&lt;String, String&gt; errors = new HashMap&lt;&gt;();</span>
+        // Collects validation error messages for each invalid field
+<span class="nc" id="L32">        ex.getBindingResult().getAllErrors().forEach((error) -&gt; {</span>
+<span class="nc" id="L33">            String fieldName = ((FieldError) error).getField(); // Extracts the field name causing the error</span>
+<span class="nc" id="L34">            String errorMessage = error.getDefaultMessage(); // Retrieves the default error message</span>
+<span class="nc" id="L35">            errors.put(fieldName, errorMessage); // Adds the field name and error message to the map</span>
+<span class="nc" id="L36">        });</span>
+<span class="nc" id="L37">        return new ResponseEntity&lt;&gt;(errors, HttpStatus.BAD_REQUEST); // Returns a 400 Bad Request status</span>
+    }
+
+    /**
+     * Handles IllegalArgumentException, typically thrown for invalid arguments.
+     *
+     * @param ex The IllegalArgumentException thrown.
+     * @return A ResponseEntity containing the error message and HTTP status 400.
+     */
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; handleIllegalArgumentException(IllegalArgumentException ex) {
+<span class="nc" id="L48">        Map&lt;String, String&gt; errorResponse = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L49">        errorResponse.put(&quot;error&quot;, ex.getMessage()); // Adds the exception message to the response</span>
+<span class="nc" id="L50">        errorResponse.put(&quot;status&quot;, &quot;400&quot;); // Specifies the HTTP status code</span>
+<span class="nc" id="L51">        return new ResponseEntity&lt;&gt;(errorResponse, HttpStatus.BAD_REQUEST); // Returns a 400 Bad Request status</span>
+    }
+
+    /**
+     * Handles DataIntegrityViolationException, typically caused by database constraint violations.
+     *
+     * @param ex The DataIntegrityViolationException thrown.
+     * @return A ResponseEntity containing a detailed error message and HTTP status 409.
+     */
+    @ExceptionHandler(DataIntegrityViolationException.class)
+    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; handleDataIntegrityViolationException(DataIntegrityViolationException ex) {
+<span class="nc" id="L62">        Map&lt;String, String&gt; errorResponse = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L63">        errorResponse.put(&quot;error&quot;, &quot;Data integrity violation: &quot; + ex.getMessage()); // Adds detailed error message</span>
+<span class="nc" id="L64">        return new ResponseEntity&lt;&gt;(errorResponse, HttpStatus.CONFLICT); // Returns a 409 Conflict status</span>
+    }
+
+    /**
+     * Handles IllegalStateException, typically thrown when an operation is not allowed in the current state.
+     *
+     * @param ex The IllegalStateException thrown.
+     * @return A ResponseEntity containing the error message and HTTP status 400.
+     */
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; handleIllegalStateException(IllegalStateException ex) {
+<span class="nc" id="L75">        Map&lt;String, String&gt; errorResponse = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L76">        errorResponse.put(&quot;error&quot;, ex.getMessage()); // Adds the exception message to the response</span>
+<span class="nc" id="L77">        errorResponse.put(&quot;status&quot;, &quot;400&quot;); // Specifies the HTTP status code</span>
+<span class="nc" id="L78">        return new ResponseEntity&lt;&gt;(errorResponse, HttpStatus.BAD_REQUEST); // Returns a 400 Bad Request status</span>
+    }
+
+    /**
+     * Handles NoSuchElementException, typically thrown when an expected element is not found.
+     *
+     * @param ex The NoSuchElementException thrown.
+     * @return A ResponseEntity containing the error message and HTTP status 404.
+     */
+    @ExceptionHandler(NoSuchElementException.class)
+    public ResponseEntity&lt;Map&lt;String, String&gt;&gt; handleNoSuchElementException(NoSuchElementException ex) {
+<span class="nc" id="L89">        Map&lt;String, String&gt; errorResponse = new HashMap&lt;&gt;();</span>
+<span class="nc" id="L90">        errorResponse.put(&quot;error&quot;, ex.getMessage()); // Adds the exception message to the response</span>
+<span class="nc" id="L91">        return new ResponseEntity&lt;&gt;(errorResponse, HttpStatus.NOT_FOUND); // Returns a 404 Not Found status</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.8.202204050719</span></div></body></html>
